@@ -1,0 +1,66 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "newLabName": {
+      "type": "string",
+      "defaultValue": "tsqltci_devtestlab_10"
+    }
+ },
+  "variables": {
+    "newLabVirtualNetworkName": "[concat(parameters('newLabName'),'_VNet')]",
+    "newLabVirtualNetworkSubNetName": "[concat(variables('newLabVirtualNetworkName'),'Subnet')]"
+  },
+	"resources": [
+		{
+		  "apiVersion": "2018-10-15-preview",
+		  "type": "Microsoft.DevTestLab/labs",
+		  "name": "[parameters('newLabName')]",
+		  "location": "[resourceGroup().location]",
+		  "resources": [
+			{
+			  "apiVersion": "2018-10-15-preview",
+			  "name": "[variables('newLabVirtualNetworkName')]",
+			  "type": "virtualNetworks",
+			  "dependsOn": [
+				"[resourceId('Microsoft.DevTestLab/labs', parameters('newLabName'))]"
+			  ],
+			  "properties": 
+                {
+				  "subnetOverrides": [
+				    {
+					  "resourceId":"[resourceid('Microsoft.Network/virtualNetworks/subnets',variables('newLabVirtualNetworkName'),variables('newLabVirtualNetworkSubNetName'))]",
+					  "useInVmCreationPermission": "Allow",
+					  "usePublicIpAddressPermission": "Allow",
+
+					  "sharedPublicIpAddressConfiguration": 
+					  {
+					    "allowedPorts": [
+						  {
+						    "transportProtocol": "Tcp",
+						    "backendPort": "5986"
+						  },
+						  {
+						    "transportProtocol": "Tcp",
+						    "backendPort": "1433"
+						  }
+					    ]
+
+					  }
+
+				    }
+
+				  ]
+				}
+			  
+			}
+		  ]
+		}
+	  ],
+	"outputs": {
+    "labId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.DevTestLab/labs', parameters('newLabName'))]"
+    }
+  }
+}
