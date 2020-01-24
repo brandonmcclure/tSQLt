@@ -40,28 +40,6 @@ jobs:
         Contents: '*/bin/*/*.dll'
         TargetFolder: '$(Build.ArtifactStagingDirectory)/tSQLtCLR'
         flattenFolders: true
-
-
-  - task: AzureKeyVault@1
-    inputs:
-      azureSubscription: 'tSQLt CI Subscription(58c04a99-5b92-410c-9e41-10262f68ca80)'
-      KeyVaultName: 'tSQLtSigningKey'
-      SecretsFilter: '*'
-
-  - task: authenticode-sign@4
-    inputs:
-        filePath: 'tSQLt*.dll'
-        signRootPath: '$(Build.ArtifactStagingDirectory)/tSQLtCLR'
-        timestampServer: 'http://timestamp.digicert.com'
-        timestampAlgo: 'sha256'
-        timestampServerDelay: '15'
-        fileAlgo: 'sha256'
-        retryCount: '5'
-        certificateLocation: 'pfxFile'
-        pfxFile: '$(CertificatePath)'
-        pfxPassword: '$(tSQLtSigningKeyPassword)'
-        additionalArguments: '/debug'
-
   - task: ArchiveFiles@2
     inputs:
         rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/tSQLtCLR'
@@ -109,13 +87,4 @@ jobs:
       targetPath: '$(Build.SourcesDirectory)/Build/output/'
       artifact: 'tSQLtPreTests'
       publishLocation: 'pipeline'
-
-
-#  - script: |
-#       dir /S
-#       dir $(System.ArtifactsDirectory) /S
-#    displayName: 'Complete Directory Listing (Run always)'
-#    condition: always()
-
-
 
